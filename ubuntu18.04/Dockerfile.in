@@ -26,6 +26,7 @@ ARG JDK_VERSION=jdk1.8.0_144
 RUN \
     curl -s -o /tmp/jdk.tar "${JDK_URL}" && \
     tar -xvf /tmp/jdk.tar && \
+    mv "${JDK_VERSION}" /usr/local && \
     update-alternatives --install "/usr/bin/java" "java" "/usr/local/${JDK_VERSION}/bin/java" 1 && \
     update-alternatives --install "/usr/bin/javac" "javac" "/usr/local/${JDK_VERSION}/bin/javac" 1 && \
     update-alternatives --install "/usr/bin/jar" "jar" "/usr/local/${JDK_VERSION}/bin/jar" 1 && \

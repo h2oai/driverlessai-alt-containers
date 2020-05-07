@@ -10,6 +10,7 @@ RUN \
         wget \
         graphviz \
         gcc \
+        locales \
         unzip \
         syslog-ng \
         libncursesw5 \
@@ -95,6 +96,12 @@ ENV HOME /opt/h2oai/dai/home
 
 # Set DAI java home env
 ENV DRIVERLESS_AI_JAVA_HOME="/usr/local/${JDK_VERSION}"
+
+# Set lang
+# The specified 'LC_ALL' needs to have UTF8 support, or failures can occur
+# if the dataset has unicode characters in AutoDoc.
+ENV LANG="en_US.utf8"
+ENV LC_ALL="en_US.utf8"
 
 ENTRYPOINT ["./run.sh"]
 

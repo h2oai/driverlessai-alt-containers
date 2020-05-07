@@ -16,4 +16,4 @@ runtime-ubuntu18.04:
 	docker build \
 		--build-arg JDK_URL=$(JDK_URL) \
 		-t opsh2oai/h2oai-runtime:$(DOCKER_VERSION_TAG) \
-		-f Dockerfile-runtime .
+		-f ubuntu18.04/Dockerfile.in .

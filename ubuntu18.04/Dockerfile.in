@@ -40,6 +40,12 @@ RUN \
 
 ENV PATH=$PATH:"/usr/local/${JDK_VERSION}/bin" JAVA_HOME="/usr/local/${JDK_VERSION}"
 
+# Set locale
+ENV LANGUAGE=en_US.utf8 LANG=en_US.utf8
+
+RUN locale-gen en_US.utf8 \
+ && dpkg-reconfigure locales
+
 ARG DAI_URL=https://s3.amazonaws.com/artifacts.h2o.ai/releases/ai/h2o/dai/rel-1.8.6-31/x86_64-centos7/dai_1.8.6_amd64.deb
 
 RUN \
@@ -63,7 +69,9 @@ RUN \
     chmod -R a-w /opt/h2oai/dai/python && \
     chmod -R a-w /opt/h2oai/dai/cuda-10.0 && \
     chmod -R a-w /opt/h2oai/dai/cpu-only && \
-    chmod -R o+rwx /opt/h2oai/dai/home
+    chmod -R o+rwx /opt/h2oai/dai/home && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /tmp/*
 
 # Download pretrained image recognition model(s) - for more, see config.tensorflow_image_pretrained_models
 RUN \

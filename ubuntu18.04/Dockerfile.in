@@ -48,13 +48,11 @@ RUN locale-gen en_US.utf8 \
 
 ARG DAI_URL=https://s3.amazonaws.com/artifacts.h2o.ai/releases/ai/h2o/dai/rel-1.8.6-31/x86_64-centos7/dai_1.8.6_amd64.deb
 
-RUN \
-    curl -s -o /tmp/dai.deb "${DAI_URL}"
-
 COPY python_deps.txt /tmp
 
 RUN \
     set -ex && \
+    curl -s -o /tmp/dai.deb "${DAI_URL}" && \
     dpkg -i /tmp/dai.deb && \
     rm -rf /opt/h2oai/dai/lib/cuda-10.0 && \
     echo "docker" > /opt/h2oai/dai/metadata/package_type && \

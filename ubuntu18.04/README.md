@@ -1,6 +1,6 @@
 # Ubuntu 18.04 Alternative Container
 
-## How Build
+## How To Build
 
 In order to build this alternative image, you'll first need to have the URL for downloading the `jdk1.8.0_144.jar` artifact handy. You can then build the image by running the following command:
 

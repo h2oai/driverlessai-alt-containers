@@ -35,19 +35,19 @@ RUN \
 
 ENV PATH=$PATH:"/usr/local/${JDK_VERSION}/bin" JAVA_HOME="/usr/local/${JDK_VERSION}"
 
-COPY python_deps.txt /tmp
-
 ARG DAI_URL=https://s3.amazonaws.com/artifacts.h2o.ai/releases/ai/h2o/dai/rel-1.8.6-31/x86_64-centos7/dai_1.8.6_amd64.deb
 
 RUN \
     curl -s -o /tmp/dai.deb "${DAI_URL}"
+
+COPY python_deps.txt /tmp
 
 RUN \
     set -ex && \
     dpkg -i /tmp/dai.deb && \
     rm -rf /opt/h2oai/dai/lib/cuda-10.0 && \
     echo "docker" > /opt/h2oai/dai/metadata/package_type && \
-    /opt/h2oai/dai/dai-env.sh pip install --no-cache-dir jupyter notebook==5.6.0 -c /tmp/req_constraints_deps.txt && \
+    /opt/h2oai/dai/dai-env.sh pip install --no-cache-dir jupyter notebook==5.6.0 -c /tmp/python_deps.txt && \
     rm -fr /tmp/dai.deb && \
     rm -rf /opt/h2oai/dai/tmp && \
     ln -s /tmp /opt/h2oai/dai/tmp && \
@@ -58,9 +58,7 @@ RUN \
     chmod -R a-w /opt/h2oai/dai/python && \
     chmod -R a-w /opt/h2oai/dai/cuda-10.0 && \
     chmod -R a-w /opt/h2oai/dai/cpu-only && \
-    chmod -R o+rwx /opt/h2oai/dai/home && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /tmp/*
+    chmod -R o+rwx /opt/h2oai/dai/home
 
 # Download pretrained image recognition model(s) - for more, see config.tensorflow_image_pretrained_models
 RUN \

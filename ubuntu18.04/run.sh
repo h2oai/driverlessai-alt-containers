@@ -28,15 +28,6 @@ echo "- Put data in the volume mounted at /data"
 echo "- Logs are written to the volume mounted at ${RUN_DAI_LOG_DIR}"
 echo "- Connect to Driverless AI on port 12345 inside the container"
 
-if [ "x$1" != "x--worker" ]; then
-    echo "- Connect to Jupyter notebook on port 8888 inside the container"
-
-    (export HOME=/jupyter && \
-     cd /jupyter && \
-     /opt/h2oai/dai/dai-env.sh jupyter --paths >> ${RUN_DAI_LOG_DIR}/jupyter.log && \
-     nohup /opt/h2oai/dai/dai-env.sh jupyter notebook --ip='*' --no-browser --allow-root >> ${RUN_DAI_LOG_DIR}/jupyter.log 2>&1 &)
-fi
-
 /opt/h2oai/dai/run-dai.sh "$@" 1> /dev/null
 
 if [ "x${RUN_DAI_LOG_STDOUT}" != "x" ]; then

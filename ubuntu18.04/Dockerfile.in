@@ -1,0 +1,100 @@
+FROM nvidia/cuda:10.0-cudnn7-runtime-ubuntu18.04
+
+RUN \
+    apt-get update && \
+    apt-get install -y \
+        curl \
+        less \
+        which \
+        wget \
+        graphviz \
+        gcc \
+        unzip \
+        ocl-icd-libopencl1 \
+        clinfo && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN \
+    bash -c \
+        'if [ `arch` = "x86_64" ]; then \
+             mkdir -p /etc/OpenCL/vendors && \
+             echo "libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd; \
+         fi'
+
+ARG JDK_URL
+ARG JDK_VERSION=jdk1.8.0_144
+
+RUN \
+    curl -s -o /tmp/jdk.tar "${JDK_URL}" && \
+    tar -xvf /tmp/jdk.tar && \
+    update-alternatives --install "/usr/bin/java" "java" "/usr/local/${JDK_VERSION}/bin/java" 1 && \
+    update-alternatives --install "/usr/bin/javac" "javac" "/usr/local/${JDK_VERSION}/bin/javac" 1 && \
+    update-alternatives --install "/usr/bin/jar" "jar" "/usr/local/${JDK_VERSION}/bin/jar" 1 && \
+    mkdir -p /usr/lib/java && \
+    ln -fs /usr/local/${JDK_VERSION} /usr/lib/java/${JDK_VERSION}
+
+ENV PATH=$PATH:"/usr/local/${JDK_VERSION}/bin" JAVA_HOME="/usr/local/${JDK_VERSION}"
+
+COPY ../python_deps.txt /tmp
+
+ARG DAI_URL=https://s3.amazonaws.com/artifacts.h2o.ai/releases/ai/h2o/dai/rel-1.8.6-31/x86_64-centos7/dai_1.8.6_amd64.deb
+
+RUN \
+    curl -s -o /tmp/dai.deb "${DAI_URL}"
+
+RUN \
+    set -ex && \
+    dpkg -i /tmp/dai.deb && \
+    rm -rf /opt/h2oai/dai/lib/cuda-10.0 && \
+    echo "docker" > /opt/h2oai/dai/metadata/package_type && \
+    /opt/h2oai/dai/dai-env.sh pip install --no-cache-dir jupyter notebook==5.6.0 -c /tmp/req_constraints_deps.txt && \
+    rm -fr /tmp/dai.deb && \
+    rm -rf /opt/h2oai/dai/tmp && \
+    ln -s /tmp /opt/h2oai/dai/tmp && \
+    mkdir /log && \
+    chmod -R o+w /log && \
+    rm -rf /opt/h2oai/dai/log && \
+    ln -s /log /opt/h2oai/dai/log && \
+    chmod -R a-w /opt/h2oai/dai/python && \
+    chmod -R a-w /opt/h2oai/dai/cuda-10.0 && \
+    chmod -R a-w /opt/h2oai/dai/cpu-only && \
+    chmod -R o+rwx /opt/h2oai/dai/home && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /tmp/*
+
+# Download pretrained image recognition model(s) - for more, see config.tensorflow_image_pretrained_models
+RUN \
+    mkdir -p /opt/h2oai/dai/pretrained/image/ && \
+    chmod -R o+w /opt/h2oai/dai/pretrained && \
+    ln -sf /opt/h2oai/dai/pretrained /pretrained && \
+    mkdir -p /h2oai/ && \
+    ln -sf /opt/h2oai/dai/pretrained /h2oai/pretrained && \
+    cd /opt/h2oai/dai/pretrained/image/ && \
+    wget -q https://s3.amazonaws.com/artifacts.h2o.ai/releases/ai/h2o/pretrained/image/xception_keras.model
+
+# Make a default directory where license files can be stored inside the container.
+# To make these persist across container sessions, mount a volume over this point.
+RUN \
+    mkdir /license && \
+    chmod -R o+w /license
+
+#
+# Prepare /etc/passwd for modification (this is required to support HDFS client).
+# See: https://blog.openshift.com/jupyter-on-openshift-part-6-running-as-an-assigned-user-id/
+#
+RUN chmod o+w /etc/passwd
+
+# Add shell wrapper
+COPY run.sh /run.sh
+
+# Set home directory for docker user, whether it be root or not.
+# This was made world writable earlier.
+ENV HOME /opt/h2oai/dai/home
+
+# Set DAI java home env
+ENV DRIVERLESS_AI_JAVA_HOME="/usr/local/${JDK_VERSION}"
+
+ENTRYPOINT ["./run.sh"]
+
+EXPOSE 8888
+EXPOSE 12345

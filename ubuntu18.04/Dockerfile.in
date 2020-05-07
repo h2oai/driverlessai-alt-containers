@@ -1,5 +1,7 @@
 FROM nvidia/cuda:10.0-cudnn7-runtime-ubuntu18.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN \
     apt-get update && \
     apt-get install -y \
@@ -9,6 +11,8 @@ RUN \
         graphviz \
         gcc \
         unzip \
+        syslog-ng \
+        libncursesw5 \
         ocl-icd-libopencl1 \
         clinfo && \
     rm -rf /var/lib/apt/lists/*

@@ -1,5 +1,7 @@
 # Enable GPU
 
+Note instead of the following the following steps and running this process manually, you may simply run the enable_gpu.sh bash script instead.
+
 In order to be able to run the docker image with GPU capabalities, please apply these steps on the host:
 
 ```

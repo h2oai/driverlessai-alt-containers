@@ -35,7 +35,7 @@ RUN \
 
 ENV PATH=$PATH:"/usr/local/${JDK_VERSION}/bin" JAVA_HOME="/usr/local/${JDK_VERSION}"
 
-COPY ../python_deps.txt /tmp
+COPY python_deps.txt /tmp
 
 ARG DAI_URL=https://s3.amazonaws.com/artifacts.h2o.ai/releases/ai/h2o/dai/rel-1.8.6-31/x86_64-centos7/dai_1.8.6_amd64.deb
 

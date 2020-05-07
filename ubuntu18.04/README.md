@@ -1,34 +1,18 @@
-# Enable GPU
+# Ubuntu 18.04 Alternative Container
 
-Note instead of the following the following steps and running this process manually, you may simply run the enable_gpu.sh bash script instead.
+## How Build
 
-In order to be able to run the docker image with GPU capabalities, please apply these steps on the host:
-
-```
-curl -s -L https://nvidia.github.io/nvidia-container-runtime/gpgkey | \
-  sudo apt-key add -
-distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
-curl -s -L https://nvidia.github.io/nvidia-container-runtime/$distribution/nvidia-container-runtime.list | \
-  sudo tee /etc/apt/sources.list.d/nvidia-container-runtime.list
-sudo apt-get update
-sudo apt-get install nvidia-container-runtime
-```
+In order to build this alternative image, you'll first need to have the URL for downloading the `jdk1.8.0_144.jar` artifact handy. You can then build the image by running the following command:
 
 ```
-sudo tee /etc/docker/daemon.json <<EOF
-{
-    "runtimes": {
-        "nvidia": {
-            "path": "/usr/bin/nvidia-container-runtime",
-            "runtimeArgs": []
-        }
-    }
-}
-EOF
-sudo pkill -SIGHUP dockerd
+make JDL_URL="[JDK URL]" runtime-ubuntu18.04
 ```
 
-This will install `nvidia-container-runtime` which is required in order for the container to have GPU access. Once `nvidia-container-runtime` is installed, you will need to add `--runtime=nvidia` when running `docker run ...` command to start the container. You may also use the `NVIDIA_VISIBLE_DEVICES` environment variable to specify what GPU to make visible to the container by adding it to the `docker run ...` command as well. For example:
+## Enabling GPU
+
+In order for the Driverless AI container to use the GPUs available on your system, you will need to have NVIDIA drivers >= 410 installed on the host. You'll also have to have `nvidia-container-runtime` installed. In order to install `nvidia-container-runtime`, please run the `enable_gpu.sh` script.
+
+Once `nvidia-container-runtime` is installed, you will need to add `--runtime=nvidia` when running `docker run ...` command to start the container. You may also use the `NVIDIA_VISIBLE_DEVICES` environment variable to specify what GPU to make visible to the container by adding it to the `docker run ...` command as well. For example:
 
 ```
 docker run --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES="0" ...

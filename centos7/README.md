@@ -4,7 +4,7 @@ The build files here provide an example on how to build a Centos 7 Driverless AI
 
 ## How To Build
 
-You can then build the image by running the following command:
+You can build the image by running the following command:
 
 ```
 make runtime-centos7

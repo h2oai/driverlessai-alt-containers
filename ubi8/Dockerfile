@@ -5,7 +5,7 @@ RUN yum install -y less which wget procps
 RUN mkdir -p /etc/OpenCL/vendors && echo "libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd
 
 # unnoficial release
-ARG DAI_URL=https://s3.amazonaws.com/artifacts.h2o.ai/releases/ai/h2o/dai/rel-1.10.0-33/x86_64-centos7/dai-1.10.0-1.x86_64.rpm
+ARG DAI_URL=https://s3.amazonaws.com/artifacts.h2o.ai/releases/ai/h2o/dai/rel-1.10.0-60/x86_64-centos7/dai-1.10.0-1.x86_64.rpm
 
 RUN set -ex && \
     wget -q "${DAI_URL}" && \
